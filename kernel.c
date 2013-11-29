@@ -70,11 +70,11 @@ int main ()
 
         /* step 6: load and execute*/
         makeInterrupt21();
-        interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
+        interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
         /* step 7: terminate*/
-        makeInterrupt21();
-        interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
+        // makeInterrupt21();
+        // interrupt(0x21, 5, 0, 0, 0);
 
         while (1)
         {
@@ -279,7 +279,7 @@ void readFile(char* fileName, char* buffer)
 void executeProgram(char* name, int segment)
 {
     /* Call readFile to load the file into a buffer */
-    int i = 0;
+    int i;
     char buf[SIZE_BUFFER];
 
     readFile(name, buf);
@@ -288,14 +288,13 @@ void executeProgram(char* name, int segment)
      * bottom (0000) of memory at the segment in the 
      * parameter
      */
-     while (buf[i] != 0xff && i < SIZE_BUFFER)
-        putInMemory(segment, 0x0000 + i, buf[i++]);
+     for (i = 0; buf[i] != 0xff && i < SIZE_BUFFER; i++)
+        putInMemory(segment, 0x0000 + i, buf[i]);
 
     /* Call the assembly function launchProgram()*/ 
     launchProgram(segment);
 }
 
 void terminate(){
-    interrupt(0x21, 0, "terminating\r\n\0", 0, 0);
-    while(1);
+    interrupt(0x21, 4, "shell\0", 0x2000, 0);
 }
